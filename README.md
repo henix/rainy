@@ -5,34 +5,43 @@ Rainy is a simple front-end module solution. It just *inline* all js/css you nee
 ## Input and output
 
 input: module and dependency define
+
 output: inlined HTML or js
 
 ## A simple example
 
 test.moddef - define modules and dependencies:
 
-	JQuery.cookie: jquery-cookie/jquery-cookie.js
-	JQuery: jquery/jquery.js
-	
-	JQuery.cookie -> JQuery # declare that JQuery-cookie depends on JQuery, add comments like this
+```ruby
+JQuery.cookie: jquery-cookie/jquery-cookie.js
+JQuery: jquery/jquery.js
+
+JQuery.cookie -> JQuery # declare that JQuery-cookie depends on JQuery, add comments like this
+```
 
 the html
 
-	<div>other parts</div>
-	#inline JQuery.cookie
-	</body>
+```html
+<div>other parts</div>
+#inline JQuery.cookie
+</body>
+```
 
 run:
 
-	~/rainy/rain --incpath "~/jslibs" --moddef test.moddef input.htm
+```bash
+~/rainy/rain --incpath "~/jslibs" --moddef test.moddef input.htm
+```
 
 output:
 
-	<div>other parts</div>
-	<script type="text/javascript">
-	...... // code from jquery
-	...... // code jquery-cookie
-	</script>
+```html
+<div>other parts</div>
+<script type="text/javascript">
+...... // code from jquery
+...... // code jquery-cookie
+</script>
+```
 
 ## Install
 
