@@ -39,8 +39,9 @@ output:
 <div>other parts</div>
 <script type="text/javascript">
 ...... // code from jquery
-...... // code jquery-cookie
+...... // code from jquery-cookie
 </script>
+</body>
 ```
 
 ## Install
@@ -61,3 +62,7 @@ Compared to other js preprocessor (cpp / jspp)
 ## Limitations
 
 Rainy currently doesn't detect cyclic dependencies. If you specify a cyclic dependency, the order of inlined code will be uncertain.
+
+## .moddef Grammar
+
+TODO
