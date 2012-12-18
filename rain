@@ -1,0 +1,4 @@
+#!/bin/bash
+DIR=$(dirname $0)
+# lua 5.2 required, or you can use luajit
+LUA_PATH="$DIR/?.lua;$DIR/?/init.lua" lua "$DIR/rain.lua" $@
