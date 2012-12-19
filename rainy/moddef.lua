@@ -1,5 +1,7 @@
 -- A PEG parser for .moddef files
 
+require('rainy.throw')
+
 local moddef = {}
 
 local function findWord(str, pos)
@@ -44,6 +46,9 @@ function DirStack.isEmpty(this)
 end
 
 function DirStack.fullName(this, name)
+	if string.sub(name, 1, 2) == '::' then
+		return string.sub(name, 3)
+	end
 	local tmp = {}
 	for _, v in ipairs(this) do
 		table.insert(tmp, v.name)
@@ -248,23 +253,35 @@ function moddef.parse(str)
 		return true
 	end
 
-	-- Depends_0: Spaces id
+	-- GlobalId: "::" id | id
+	function GlobalId()
+		local mark = pos
+		local global = ''
+		if nextStr('::') then
+			global = '::'
+		end
+		local ret = id()
+		if not ret then pos = mark; return nil end
+		return global..ret
+	end
+
+	-- Depends_0: Spaces GlobalId
 	function Depends_0()
 		local mark = pos
 		if not Space1() then pos = mark; return nil end
-		local ret = id()
+		local ret = GlobalId()
 		if not ret then pos = mark; return nil end
 		return ret
 	end
 
-	-- Depends: Spaces id "->" id (Space1 id)* newline
+	-- Depends: Spaces id "->" GlobalId (Space1 GlobalId)* newline
 	function Depends()
 		local mark = pos
 		Spaces()
 		local modname = id()
 		if not modname then pos = mark; return false end
 		if not punct("->") then pos = mark; return false end
-		local depname = id()
+		local depname = GlobalId()
 		if not depname then throw('Expect module name after ->, but saw: '..findWord(str, pos)); pos = mark; return false end
 		local depends = {}
 		repeat
