@@ -227,22 +227,22 @@ function moddef.parse(str)
 			Spaces()
 			csspath = path()
 		end
-		if not newline() then error('Unexpect char at end of line: '..findWord(str, pos)); pos = mark; return false end
+		if not newline() then throw('Unexpect char at end of line: '..findWord(str, pos)); pos = mark; return false end
 		-- emit code
 		if jspath == nil then
 			jspath = modname..'.js'
 		end
 		if modname == '*before_all' then
 			if dirStack:isEmpty() then
-				error('You can\'t define *before_all outside a dir')
+				throw('You can\'t define *before_all outside a dir')
 			end
 		end
-		coroutine.yield('define', {dirStack:fullName(modname), dirStack:fullPath(jspath), csspath and dirStack:fullPath(csspath)})
+		coroutine.yield('define', {dirStack:fullName(modname), dirStack:fullPath(jspath), csspath and dirStack:fullPath(csspath)}, lineNo - 1)
 		if modname == '*before_all' then
 			dirStack:setBeforeAll()
 		else
 			if dirStack:hasBeforeAll() then
-				coroutine.yield('add_depends', {dirStack:fullName(modname), {dirStack:fullName('*before_all')}})
+				coroutine.yield('add_depends', {dirStack:fullName(modname), {dirStack:fullName('*before_all')}}, lineNo - 1)
 			end
 		end
 		return true
@@ -265,15 +265,15 @@ function moddef.parse(str)
 		if not modname then pos = mark; return false end
 		if not punct("->") then pos = mark; return false end
 		local depname = id()
-		if not depname then error('Expect module name after ->, but saw: '..findWord(str, pos)); pos = mark; return false end
+		if not depname then throw('Expect module name after ->, but saw: '..findWord(str, pos)); pos = mark; return false end
 		local depends = {}
 		repeat
 			table.insert(depends, dirStack:fullName(depname))
 			depname = Depends_0()
 		until depname == nil
-		if not newline() then error('Unexpect char at end of line: '..findWord(str, pos)); pos = mark; return nil end
+		if not newline() then throw('Unexpect char at end of line: '..findWord(str, pos)); pos = mark; return nil end
 		-- emit code
-		coroutine.yield('add_depends', {dirStack:fullName(modname), depends})
+		coroutine.yield('add_depends', {dirStack:fullName(modname), depends}, lineNo - 1)
 		return true
 	end
 
@@ -287,20 +287,20 @@ function moddef.parse(str)
 		Spaces()
 		if not keyword("dir") then pos = mark; return false end
 		local dirname = id()
-		if not dirname then error('Expect id but saw: '..findWord(str, pos)); pos = mark; return false end
-		if not Space1() then error('Expect space but saw: '..findWord(str, pos)); pos = mark; return false end
+		if not dirname then throw('Expect id but saw: '..findWord(str, pos)); pos = mark; return false end
+		if not Space1() then throw('Expect space but saw: '..findWord(str, pos)); pos = mark; return false end
 		local dirpath = path()
-		if not dirpath then error('Expect path but saw: '..findWord(str, pos)); pos = mark; return false end
+		if not dirpath then throw('Expect path but saw: '..findWord(str, pos)); pos = mark; return false end
 		newline()
-		if not punct("{") then error('Expect \'{\' but saw: '..findWord(str, pos)); pos = mark; return false end
-		if not newline() then error('There must be a newline after {'); pos = mark; return false end
+		if not punct("{") then throw('Expect \'{\' but saw: '..findWord(str, pos)); pos = mark; return false end
+		if not newline() then throw('There must be a newline after {'); pos = mark; return false end
 		-- enter dir
 		dirStack:addDir(dirname, dirpath)
 		Block()
 		dirStack:pop()
 		-- exit dir
-		if not punct("}") then error('Expect \'}\' but saw: '..findWord(str, pos)); pos = mark; return false end
-		if not newline() then error('Unexpect char after }: '..findWord(str, pos)); pos = mark; return false end
+		if not punct("}") then throw('Expect \'}\' but saw: '..findWord(str, pos)); pos = mark; return false end
+		if not newline() then throw('Unexpect char after }: '..findWord(str, pos)); pos = mark; return false end
 		return true
 	end
 
@@ -322,12 +322,12 @@ function moddef.parse(str)
 		Block()
 		Spaces()
 		comment()
-		if not aheadNot() then error('Unexpected char at EOF: '..findWord(str, pos)) end
+		if not aheadNot() then throw('Unexpected char: '..findWord(str, pos)) end
 	end
 
 	local ok, err = pcall(All)
 	if not ok then
-		error(lineNo..': '..err, 0)
+		throw(lineNo..': '..err)
 	end
 end
 
