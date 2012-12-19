@@ -91,5 +91,6 @@ end
 end)
 
 if not ok then
-	io.write(err, '\n')
+	io.stderr:write(err, '\n')
+	os.exit(2)
 end
