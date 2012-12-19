@@ -74,6 +74,7 @@ function rainy.process_js(this, jsname)
 			tassert(this.mod:is_defined(name), 'module not defined: '..name)
 			do
 				local alldeps = assert(this.mod:import(name))
+				coroutine.yield(';')
 				for _, modname in ipairs(alldeps) do
 					local jspath = this.mod:jspath(modname)
 					if jspath ~= nil then
@@ -82,6 +83,7 @@ function rainy.process_js(this, jsname)
 						for line in fin:lines() do
 							coroutine.yield(line)
 						end
+						coroutine.yield(';') -- insert a ; between js files
 						fin:close()
 					end
 				end
@@ -157,6 +159,7 @@ function rainy.process_html(this, htmlname)
 						for line in fin:lines() do
 							table.insert(collected_js, line)
 						end
+						table.insert(collected_js, ';') -- insert a ; between js files
 						fin:close()
 					end
 				end
