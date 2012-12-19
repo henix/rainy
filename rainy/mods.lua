@@ -31,7 +31,6 @@ function mods.define(this, name, jspath, csspath)
 		return nil, 'module already defined: '..name
 	end
 	this.mods[name] = {}
-	assert(jspath)
 	this.mods[name].jspath = jspath
 	this.mods[name].csspath = csspath
 	return true

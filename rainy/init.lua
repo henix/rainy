@@ -75,12 +75,15 @@ function rainy.process_js(this, jsname)
 			do
 				local alldeps = assert(this.mod:import(name))
 				for _, modname in ipairs(alldeps) do
-					local fin = openFileIncPath(this, this.mod:jspath(modname))
-					tassert(fin, 'file not found: '..this.mod:jspath(modname)..' (in '..table.concat(this.incpaths, ';')..')')
-					for line in fin:lines() do
-						coroutine.yield(line)
+					local jspath = this.mod:jspath(modname)
+					if jspath ~= nil then
+						local fin = openFileIncPath(this, jspath)
+						tassert(fin, 'file not found: '..this.mod:jspath(modname)..' (in '..table.concat(this.incpaths, ';')..')')
+						for line in fin:lines() do
+							coroutine.yield(line)
+						end
+						fin:close()
 					end
-					fin:close()
 				end
 			end
 		else
@@ -147,12 +150,15 @@ function rainy.process_html(this, htmlname)
 				local collected_js = afterHead or {}
 				table.insert(collected_js, '<script type="text/javascript">')
 				for _, modname in ipairs(alldeps) do
-					local fin = openFileIncPath(this, this.mod:jspath(modname))
-					tassert(fin, 'file not found: '..this.mod:jspath(modname)..' (in '..table.concat(this.incpaths, ';')..')')
-					for line in fin:lines() do
-						table.insert(collected_js, line)
+					local jspath = this.mod:jspath(modname)
+					if jspath ~= nil then
+						local fin = openFileIncPath(this, jspath)
+						tassert(fin, 'file not found: '..this.mod:jspath(modname)..' (in '..table.concat(this.incpaths, ';')..')')
+						for line in fin:lines() do
+							table.insert(collected_js, line)
+						end
+						fin:close()
 					end
-					fin:close()
 				end
 				table.insert(collected_js, '</script>')
 				-- if it is before </head> , yield immediately, otherwise buffer it in afterHead

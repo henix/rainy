@@ -46,14 +46,16 @@ function DirStack.isEmpty(this)
 end
 
 function DirStack.fullName(this, name)
-	if string.sub(name, 1, 2) == '::' then
+	if name ~= nil and string.sub(name, 1, 2) == '::' then
 		return string.sub(name, 3)
 	end
 	local tmp = {}
 	for _, v in ipairs(this) do
 		table.insert(tmp, v.name)
 	end
-	table.insert(tmp, name)
+	if name ~= nil then
+		table.insert(tmp, name)
+	end
 	return table.concat(tmp, '.')
 end
 
@@ -243,12 +245,17 @@ function moddef.parse(str)
 			end
 		end
 		coroutine.yield('define', {dirStack:fullName(modname), dirStack:fullPath(jspath), csspath and dirStack:fullPath(csspath)}, lineNo - 1)
+		-- before_all
 		if modname == '*before_all' then
 			dirStack:setBeforeAll()
 		else
 			if dirStack:hasBeforeAll() then
 				coroutine.yield('add_depends', {dirStack:fullName(modname), {dirStack:fullName('*before_all')}}, lineNo - 1)
 			end
+		end
+		-- parent dir depends on this
+		if not dirStack:isEmpty() then
+			coroutine.yield('add_depends', {dirStack:fullName(), {dirStack:fullName(modname)}}, lineNo - 1)
 		end
 		return true
 	end
@@ -311,6 +318,12 @@ function moddef.parse(str)
 		newline()
 		if not punct("{") then throw('Expect \'{\' but saw: '..findWord(str, pos)); pos = mark; return false end
 		if not newline() then throw('There must be a newline after {'); pos = mark; return false end
+		-- define a module named dirname
+		coroutine.yield('define', {dirStack:fullName(dirname)}, lineNo - 1)
+		-- parent dir depends on this
+		if not dirStack:isEmpty() then
+			coroutine.yield('add_depends', {dirStack:fullName(), {dirStack:fullName(dirname)}}, lineNo - 1)
+		end
 		-- enter dir
 		dirStack:addDir(dirname, dirpath)
 		Block()
