@@ -6,7 +6,7 @@ function endsWith(str, suffix)
 	return string.sub(str, str:len() - suffix:len() + 1) == suffix
 end
 
-require('throw')
+require('rainy.throw')
 local rainy = require('rainy')
 
 local rain = rainy.new()
@@ -68,8 +68,16 @@ for _, moddef in ipairs(moddefs) do
 	rain:add_moddef(moddef)
 end
 
-if filetype == 'js' then
-	local co = coroutine.create(rainy.process_js)
+do -- process
+	local func
+
+	if filetype == 'js' then
+		func = rainy.process_js
+	elseif filetype == 'html' then
+		func = rainy.process_html
+	end
+
+	local co = coroutine.create(func)
 	local ok, line = coroutine.resume(co, rain, filename)
 	while ok and line do
 		io.write(line, '\n')
@@ -78,8 +86,6 @@ if filetype == 'js' then
 	if line ~= nil then
 		throw(line)
 	end
-elseif filetype == 'html' then
-	error('not implement yet')
 end
 
 end)
