@@ -53,9 +53,7 @@ end
 
 function mods.import(this, modname)
 	assert(modname)
-	if not mods.is_defined(this, modname) then
-		return nil, 'module not defined: '..name
-	end
+	assert(mods.is_defined(this, modname))
 	return this.topo:get_deps_incr(modname)
 end
 
