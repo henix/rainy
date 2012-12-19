@@ -318,8 +318,11 @@ function moddef.parse(str)
 		newline()
 		if not punct("{") then throw('Expect \'{\' but saw: '..findWord(str, pos)); pos = mark; return false end
 		if not newline() then throw('There must be a newline after {'); pos = mark; return false end
-		-- define a module named dirname
+		-- define a module named `dirname`
 		coroutine.yield('define', {dirStack:fullName(dirname)}, lineNo - 1)
+		if dirStack:hasBeforeAll() then
+			coroutine.yield('add_depends', {dirStack:fullName(dirname), {dirStack:fullName('*before_all')}}, lineNo - 1)
+		end
 		-- parent dir depends on this
 		if not dirStack:isEmpty() then
 			coroutine.yield('add_depends', {dirStack:fullName(), {dirStack:fullName(dirname)}}, lineNo - 1)
