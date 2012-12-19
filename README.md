@@ -1,6 +1,6 @@
 # Rainy
 
-Rainy is a simple front-end module solution. It just *inline* all js / css you need into the HTML / js.
+Rainy is a simple front-end module solution. It just **inline** all js / css you need into the HTML / js.
 
 ## Input and output
 
@@ -46,7 +46,7 @@ output:
 
 ## Install
 
-Rainy is written in Lua. It requires Lua *5.2* or luajit (because it uses `coroutine.yield` within `pcall`, which Lua 5.1 not supported).
+Rainy is written in Lua. It requires Lua **5.2** or luajit (because it uses `coroutine.yield` within `pcall`, which Lua 5.1 not supported).
 
 ## Advantages
 
