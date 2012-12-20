@@ -1,8 +1,8 @@
-function startsWith(str, prefix)
+local function startsWith(str, prefix)
 	return (string.sub(str, 1, string.len(prefix)) == prefix)
 end
 
-function endsWith(str, suffix)
+local function endsWith(str, suffix)
 	return string.sub(str, str:len() - suffix:len() + 1) == suffix
 end
 

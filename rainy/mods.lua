@@ -57,4 +57,8 @@ function mods.import(this, modname)
 	return this.topo:get_deps_incr(modname)
 end
 
+function mods.reset(this)
+	this.topo:reset()
+end
+
 return mods

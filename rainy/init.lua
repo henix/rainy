@@ -1,4 +1,4 @@
-function startsWith(str, prefix)
+local function startsWith(str, prefix)
 	return (string.sub(str, 1, string.len(prefix)) == prefix)
 end
 
@@ -93,12 +93,13 @@ function rainy.process_js(this, jsname)
 		end
 	end
 	end)
+	this.mod:reset()
 	if not ok then
 		throw(jsname..':'..nu..': '..err)
 	end
 end
 
-function yieldall(t)
+local function yieldall(t)
 	for _, v in ipairs(t) do
 		coroutine.yield(v)
 	end
@@ -187,6 +188,7 @@ function rainy.process_html(this, htmlname)
 
 	end)
 
+	this.mod:reset()
 	if not ok then
 		throw(htmlname..':'..nu..': '..err)
 	end

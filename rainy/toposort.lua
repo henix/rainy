@@ -44,4 +44,9 @@ function toposort.get_deps_incr(t, nodename)
 	return sorted
 end
 
+-- reset states stored in t
+function toposort.reset(t)
+	t.visited = {}
+end
+
 return toposort
