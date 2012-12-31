@@ -54,6 +54,7 @@ while pos <= #arg do
 	end
 end
 
+tassert(filename, 'missing filename')
 if filetype == nil then
 	if endsWith(filename, '.js') then
 		filetype = 'js'

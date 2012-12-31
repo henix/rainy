@@ -22,7 +22,10 @@ end
 
 function rainy.add_moddef(this, modfile)
 	local fin = tassert(io.open(modfile))
-	local all = fin:read('*a')
+	local all, err = fin:read('*a')
+	if not all then
+		throw(modfile..': '..err)
+	end
 
 	local co = coroutine.create(moddef.parse)
 	local ok, op_err, params, lineNo = coroutine.resume(co, all)
