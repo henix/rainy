@@ -37,8 +37,23 @@ function DirStack.setBeforeAll(this)
 	this[#this].before_all = true
 end
 
-function DirStack.hasBeforeAll(this)
-	return #this > 0 and this[#this].before_all
+function DirStack.nearestBeforeAll(this)
+	local bi = #this
+	while bi >= 1 do
+		if this[bi].before_all then
+			break
+		end
+		bi = bi - 1
+	end
+	if bi > 0 then
+		local tmp = {}
+		for i = 1, bi do
+			table.insert(tmp, this[i].name)
+		end
+		table.insert(tmp, '*before_all')
+		return table.concat(tmp, '.')
+	end
+	return nil
 end
 
 function DirStack.isEmpty(this)
@@ -246,12 +261,14 @@ function moddef.parse(str)
 		end
 		coroutine.yield('define', {dirStack:fullName(modname), dirStack:fullPath(jspath), csspath and dirStack:fullPath(csspath)}, lineNo - 1)
 		-- before_all
-		if modname == '*before_all' then
-			dirStack:setBeforeAll()
-		else
-			if dirStack:hasBeforeAll() then
-				coroutine.yield('add_depends', {dirStack:fullName(modname), {dirStack:fullName('*before_all')}}, lineNo - 1)
+		do
+			local before_all = dirStack:nearestBeforeAll()
+			if before_all ~= nil then
+				coroutine.yield('add_depends', {dirStack:fullName(modname), {before_all}}, lineNo - 1)
 			end
+		end
+		if modname == '*before_all' then -- this must after above
+			dirStack:setBeforeAll()
 		end
 		-- parent dir depends on this
 		if not dirStack:isEmpty() then
@@ -320,8 +337,11 @@ function moddef.parse(str)
 		if not newline() then throw('There must be a newline after {'); pos = mark; return false end
 		-- define a module named `dirname`
 		coroutine.yield('define', {dirStack:fullName(dirname)}, lineNo - 1)
-		if dirStack:hasBeforeAll() then
-			coroutine.yield('add_depends', {dirStack:fullName(dirname), {dirStack:fullName('*before_all')}}, lineNo - 1)
+		do
+			local before_all = dirStack:nearestBeforeAll()
+			if before_all ~= nil then
+				coroutine.yield('add_depends', {dirStack:fullName(dirname), {before_all}}, lineNo - 1)
+			end
 		end
 		-- parent dir depends on this
 		if not dirStack:isEmpty() then
